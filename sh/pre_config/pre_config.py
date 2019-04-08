@@ -24,6 +24,18 @@ def get_current_lightweight_component(data, execution_id):
     return current_lightweight_component
 
 
+def get_spark_env_file_content(data, execution_id):
+    spark_env = []
+    current_lightweight_component = get_current_lightweight_component(data, execution_id)
+    master_url = current_lightweight_component['config']['spark_master']
+    spark_env.append("export SPARK_MASTER_URL=spark://{master}:7077".format(master=master_url))
+    spark_env.append("export SPARK_MASTER={master}".format(master=master_url))
+    spark_env.append("export SPARK_MASTER_PORT=7077}")
+    spark_env.append("export SPARK_HOME=/spark")
+    spark_env.append("export SPARK_CONF_DIR=\"${SPARK_CONF_DIR:-\"${SPARK_HOME}\"/conf}\"")
+    return "\n".join(spark_env)
+
+
 def get_spark_default_config_file_content(data, execution_id):
     current_lightweight_component = get_current_lightweight_component(data, execution_id)
     config = []
@@ -51,6 +63,10 @@ if __name__ == "__main__":
     spark_default_config_file = open("{output_dir}/spark-defaults.conf".format(output_dir=output_dir), 'w')
     spark_default_config_file.write(get_spark_default_config_file_content(data, execution_id))
     spark_default_config_file.close()
+
+    spark_env_file = open("{output_dir}/spark_env.conf".format(output_dir=output_dir), 'w')
+    spark_env_file.write(get_spark_env_file_content(data, execution_id))
+    spark_env_file.close()
 
 
 
