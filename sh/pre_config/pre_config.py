@@ -40,13 +40,14 @@ def get_spark_default_config_file_content(data, execution_id):
     current_lightweight_component = get_current_lightweight_component(data, execution_id)
     config = []
     config_section = current_lightweight_component['config']
-    spark_eventLog_enabled = config_section['spark_eventLog_enabled']
+    spark_eventLog_enabled = config_section['spark_event_log_enabled']
     config.append("spark.eventLog.enabled {value}".format(value=str(spark_eventLog_enabled).lower()))
     spark_ui_enabled = config_section['spark_ui_enabled']
     config.append("spark.ui.enabled {value}".format(value=str(spark_ui_enabled).lower()))
     # process supplemental config
-    supplemental_config = current_lightweight_component['supplemental_config']
-    for config_file in supplemental_config:
+    supplemental_config = current_lightweight_component.get('supplemental_config', None)
+    if supplemental_config is not None:
+        for config_file in supplemental_config:
             if config_file == "spark-defaults.conf":
                 for config_value in supplemental_config['spark-defaults.conf']:
                     config.append(config_value)
@@ -67,16 +68,3 @@ if __name__ == "__main__":
     spark_env_file = open("{output_dir}/spark_env.conf".format(output_dir=output_dir), 'w')
     spark_env_file.write(get_spark_env_file_content(data, execution_id))
     spark_env_file.close()
-
-
-
-
-
-
-
-
-
-
-
-
-
